@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="..\THjs\ObjectStruct.c" />
+    <ClCompile Include="..\THjs\VM.c" />
+    <ClCompile Include="test.cpp" />
+    <ClCompile Include="..\THjs\Parser.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\THjs\AstNode.h" />
+    <ClInclude Include="..\THjs\ExecEnv.h" />
+    <ClInclude Include="..\THjs\List.h" />
+    <ClInclude Include="..\THjs\Map.h" />
+    <ClInclude Include="..\THjs\ObjectStruct.h" />
+    <ClInclude Include="..\THjs\VM.h" />
+    <ClInclude Include="..\THjs\ProtoTypeStruct.h" />
+    <ClInclude Include="..\THjs\Parser.h" />
+  </ItemGroup>
+</Project>

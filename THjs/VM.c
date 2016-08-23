@@ -107,8 +107,8 @@ void singleCoreLinkCPU(struct VmObject * vmObj)
 	struct NormalObjectStruct *variant2;
  
 	char *tmpChar,*tmpChar2;
- 	struct  NormalObjectStruct * stack;
-	stack = env->stack;
+// 	struct  NormalObjectStruct * stack;
+
 	int lenTmp = 0;
 	struct StringProperty *stringProperty;
 	struct ExecEnv *envTmp;
@@ -128,18 +128,18 @@ void singleCoreLinkCPU(struct VmObject * vmObj)
 			switch (variant->baseObjectStruct.type)
 			{
 			case OBJECT_STRUCT_TYPE_NUMBER_DOUBLE:	//int + double
-				stack->value.valueDouble = node->operData.operData2IntInt.l + variant->value.valueDouble;
+				env->stackHead->value.valueDouble = node->operData.operData2IntInt.l + variant->value.valueDouble;
 				break;
 			case OBJECT_STRUCT_TYPE_NUMBER_INT:   //int + int
-				stack->value.valueInt = node->operData.operData2IntInt.l + variant->value.valueInt;
-				stack->baseObjectStruct.type = OBJECT_STRUCT_TYPE_NUMBER_INT;
+				env->stackHead->value.valueInt = node->operData.operData2IntInt.l + variant->value.valueInt;
+				env->stackHead->baseObjectStruct.type = OBJECT_STRUCT_TYPE_NUMBER_INT;
 				break;
 			case OBJECT_STRUCT_TYPE_STRING: //int +string
  				tmpChar = malloc(11 + variant->value.stringProperty.len);
 				tmpChar = myItoa(node->operData.operData2IntInt.l, tmpChar);
 				memcpy(tmpChar, (char *)variant->value.stringProperty.value, variant->value.stringProperty.len);
 				*(tmpChar + variant->value.stringProperty.len) = 0x00;
-				stack->value.valueInt = tmpChar;
+				env->stackHead->value.valueInt = tmpChar;
 				break;
 			case OBJECT_STRUCT_TYPE_POINT: //int +外部变量
 				variant = (struct NormalObjectStruct *)(variant->value.outerVariantPoint.point);
@@ -161,16 +161,16 @@ void singleCoreLinkCPU(struct VmObject * vmObj)
 			switch (variant->baseObjectStruct.type)
 			{
 			case OBJECT_STRUCT_TYPE_NUMBER_DOUBLE:	//double + double
-				stack->value.valueDouble = node->operData.operData2DobuleInt.l + variant->value.valueDouble;
+				env->stackHead->value.valueDouble = node->operData.operData2DobuleInt.l + variant->value.valueDouble;
 				break;
 			case OBJECT_STRUCT_TYPE_NUMBER_INT:   //double + int
-				stack->value.valueDouble = node->operData.operData2DobuleInt.l + variant->value.valueInt;
+				env->stackHead->value.valueDouble = node->operData.operData2DobuleInt.l + variant->value.valueInt;
 				break;
 			case OBJECT_STRUCT_TYPE_STRING: //double +string
-				stack->value.stringProperty.value = (void *)malloc(30 + variant->value.stringProperty.len);
-				lenTmp = sprintf(stack->value.stringProperty.value, "%10.2lf", node->operData.operData2DobuleInt.l);
-				memcpy((char *)(stack->value.stringProperty.value) + lenTmp, variant->value.stringProperty.value, variant->value.stringProperty.len);
-				stack->value.stringProperty.len = variant->value.stringProperty.len + lenTmp;
+				env->stackHead->value.stringProperty.value = (void *)malloc(30 + variant->value.stringProperty.len);
+				lenTmp = sprintf(env->stackHead->value.stringProperty.value, "%10.2lf", node->operData.operData2DobuleInt.l);
+				memcpy((char *)(env->stackHead->value.stringProperty.value) + lenTmp, variant->value.stringProperty.value, variant->value.stringProperty.len);
+				env->stackHead->value.stringProperty.len = variant->value.stringProperty.len + lenTmp;
 				break;
 			case OBJECT_STRUCT_TYPE_POINT: //int +外部变量
 				variant = (struct NormalObjectStruct *)(variant->value.outerVariantPoint.point);
@@ -193,31 +193,31 @@ void singleCoreLinkCPU(struct VmObject * vmObj)
 			switch (variant->baseObjectStruct.type)
 			{
 				case OBJECT_STRUCT_TYPE_NUMBER_DOUBLE: //string + double
-					stack->value.stringProperty.value =(void *) malloc(30 + node->operData.operData2StringInt.l.len);
-					memcpy((char *)(stack->value.stringProperty.value) ,node ->operData.operData2StringInt.l.value, 
+					env->stackHead->value.stringProperty.value =(void *) malloc(30 + node->operData.operData2StringInt.l.len);
+					memcpy((char *)(env->stackHead->value.stringProperty.value) ,node ->operData.operData2StringInt.l.value,
 										node->operData.operData2StringInt.l.len);
-					lenTmp=sprintf((char*)stack->value.stringProperty.value + node->operData.operData2StringInt.l.len
+					lenTmp=sprintf((char*)env->stackHead->value.stringProperty.value + node->operData.operData2StringInt.l.len
 							, "%10.2lf", variant->value.valueDouble);
-					stack->value.stringProperty.len = node->operData.operData2StringInt.l.len + lenTmp;
+					env->stackHead->value.stringProperty.len = node->operData.operData2StringInt.l.len + lenTmp;
 
 					break;
 				case OBJECT_STRUCT_TYPE_NUMBER_INT: //string + int
-					stack->value.stringProperty.value = (void *)malloc(11 + node->operData.operData2StringInt.l.len);
-					memcpy((char *)(stack->value.stringProperty.value), node->operData.operData2StringInt.l.value,
+					env->stackHead->value.stringProperty.value = (void *)malloc(11 + node->operData.operData2StringInt.l.len);
+					memcpy((char *)(env->stackHead->value.stringProperty.value), node->operData.operData2StringInt.l.value,
 						node->operData.operData2StringInt.l.len);
 
-					tmpChar = (char*)stack->value.stringProperty.value + node->operData.operData2StringInt.l.len;
+					tmpChar = (char*)env->stackHead->value.stringProperty.value + node->operData.operData2StringInt.l.len;
 					tmpChar = myItoa(variant->value.valueInt, tmpChar);
-					stack->value.stringProperty.len = tmpChar - (char*)stack->value.stringProperty.value;
+					env->stackHead->value.stringProperty.len = tmpChar - (char*)env->stackHead->value.stringProperty.value;
 					 
 
 					break;
 				case OBJECT_STRUCT_TYPE_STRING://string + string
-					stack->value.stringProperty.len = variant->value.stringProperty.len + node->operData.operData2StringInt.l.len;
-					stack->value.stringProperty.value = (void *)malloc(stack->value.stringProperty.len);
-					memcpy((char *)(stack->value.stringProperty.value), node->operData.operData2StringInt.l.value,
+					env->stackHead->value.stringProperty.len = variant->value.stringProperty.len + node->operData.operData2StringInt.l.len;
+					env->stackHead->value.stringProperty.value = (void *)malloc(env->stackHead->value.stringProperty.len);
+					memcpy((char *)(env->stackHead->value.stringProperty.value), node->operData.operData2StringInt.l.value,
 						node->operData.operData2StringInt.l.len);
-					memcpy((char *)(stack->value.stringProperty.value), variant->value.stringProperty.value,
+					memcpy((char *)(env->stackHead->value.stringProperty.value), variant->value.stringProperty.value,
 						variant->value.stringProperty.len );
 					break;
 				case OBJECT_STRUCT_TYPE_POINT: //int +外部变量
@@ -233,13 +233,13 @@ void singleCoreLinkCPU(struct VmObject * vmObj)
 			break;
 
 		case OPER_ADD_EXPR_1_INT_LEFT:
-			if (stack->baseObjectStruct.type == OBJECT_STRUCT_TYPE_NUMBER_DOUBLE)
+			if (env->stackHead->baseObjectStruct.type == OBJECT_STRUCT_TYPE_NUMBER_DOUBLE)
 			{
-				stack->value.valueDouble = node->operData.operDataInt.l + stack->value.valueDouble;
+				env->stackHead->value.valueDouble = node->operData.operDataInt.l + env->stackHead->value.valueDouble;
 			}
-			else if (stack->baseObjectStruct.type == OBJECT_STRUCT_TYPE_NUMBER_INT)
+			else if (env->stackHead->baseObjectStruct.type == OBJECT_STRUCT_TYPE_NUMBER_INT)
 			{
-				stack->value.valueInt = node->operData.operDataInt.l + stack->value.valueInt;
+				env->stackHead->value.valueInt = node->operData.operDataInt.l + env->stackHead->value.valueInt;
 
 			}
  			break;
@@ -248,13 +248,13 @@ void singleCoreLinkCPU(struct VmObject * vmObj)
 			break;
 
 		case OPER_ADD_EXPR_1_DOUBLE_LEFT:
-			if (stack->baseObjectStruct.type == OBJECT_STRUCT_TYPE_NUMBER_DOUBLE)
+			if (env->stackHead->baseObjectStruct.type == OBJECT_STRUCT_TYPE_NUMBER_DOUBLE)
 			{
-				stack->value.valueDouble = node->operData.operDataDouble.l + stack->value.valueDouble;
+				env->stackHead->value.valueDouble = node->operData.operDataDouble.l + env->stackHead->value.valueDouble;
 			}
-			else if (stack->baseObjectStruct.type == OBJECT_STRUCT_TYPE_NUMBER_INT)
+			else if (env->stackHead->baseObjectStruct.type == OBJECT_STRUCT_TYPE_NUMBER_INT)
 			{
-				stack->value.valueDouble = node->operData.operDataDouble.l + stack->value.valueInt;
+				env->stackHead->value.valueDouble = node->operData.operDataDouble.l + env->stackHead->value.valueInt;
  			}
 			break;
 		case OPER_ADD_EXPR_1_DOUBLE_RIGHT:
@@ -269,30 +269,30 @@ void singleCoreLinkCPU(struct VmObject * vmObj)
 			break;
 		case OPER_ADD_EXPR_2:
 			//stack--;
-			if (env->stack[0].baseObjectStruct.type == OBJECT_STRUCT_TYPE_NUMBER_DOUBLE)
+ 			if ((env->stackHead - 1)->baseObjectStruct.type == OBJECT_STRUCT_TYPE_NUMBER_DOUBLE)
 			{
-				if (env->stack[1].baseObjectStruct.type == OBJECT_STRUCT_TYPE_NUMBER_DOUBLE)
+				if (env->stackHead->baseObjectStruct.type == OBJECT_STRUCT_TYPE_NUMBER_DOUBLE)
 				{
-					env->stack[0].value.valueDouble += (env->stack[1].value.valueDouble);
+					(env->stackHead - 1)->value.valueDouble += (env->stackHead->value.valueDouble);
 					//stack->value.valueDouble += stack[1].value.valueDouble;
 				}
-				else if (env->stack[1].baseObjectStruct.type == OBJECT_STRUCT_TYPE_NUMBER_INT)
+				else if (env->stackHead->baseObjectStruct.type == OBJECT_STRUCT_TYPE_NUMBER_INT)
 				{
-					env->stack[0].value.valueDouble += (env->stack[1].value.valueInt);
+					(env->stackHead - 1)->value.valueDouble += (env->stackHead->value.valueInt);
 					//stack->value.valueDouble += stack[1].value.valueInt;
 				}
 			}
-			else if (env->stack[0].baseObjectStruct.type == OBJECT_STRUCT_TYPE_NUMBER_INT)
+			else if ((env->stackHead - 1)->baseObjectStruct.type == OBJECT_STRUCT_TYPE_NUMBER_INT)
 			{
-				if (env->stack[1].baseObjectStruct.type == OBJECT_STRUCT_TYPE_NUMBER_DOUBLE)
+				if (env->stackHead->baseObjectStruct.type == OBJECT_STRUCT_TYPE_NUMBER_DOUBLE)
 				{
-					env->stack[0].value.valueDouble = env->stack[0].value.valueInt + stack[1].value.valueDouble;
+					(env->stackHead - 1)->value.valueDouble = (env->stackHead - 1)->value.valueInt + env->stackHead->value.valueDouble;
 
 				}
-				else  if (env->stack[1].baseObjectStruct.type == OBJECT_STRUCT_TYPE_NUMBER_INT)
+				else  if (env->stackHead->baseObjectStruct.type == OBJECT_STRUCT_TYPE_NUMBER_INT)
 				{
-					env->stack[0].value.valueInt += env->stack[1].value.valueInt;
-					env->stack[0].baseObjectStruct.type = OBJECT_STRUCT_TYPE_NUMBER_INT;
+					(env->stackHead - 1)->value.valueInt += env->stackHead->value.valueInt;
+					(env->stackHead - 1)->baseObjectStruct.type = OBJECT_STRUCT_TYPE_NUMBER_INT;
 
 				}
 			}
@@ -314,25 +314,25 @@ void singleCoreLinkCPU(struct VmObject * vmObj)
 
 
 
-			stack->baseObjectStruct.type = OBJECT_STRUCT_TYPE_NUMBER_DOUBLE;
+			env->stackHead->baseObjectStruct.type = OBJECT_STRUCT_TYPE_NUMBER_DOUBLE;
 
 			if (variant->baseObjectStruct.type == OBJECT_STRUCT_TYPE_NUMBER_DOUBLE &&variant2->baseObjectStruct.type == OBJECT_STRUCT_TYPE_NUMBER_DOUBLE)
 			{
-				stack->value.valueDouble = variant->value.valueDouble + variant2->value.valueDouble;
+				env->stackHead->value.valueDouble = variant->value.valueDouble + variant2->value.valueDouble;
 
 			}
 			else if (variant->baseObjectStruct.type == OBJECT_STRUCT_TYPE_NUMBER_DOUBLE &&variant2->baseObjectStruct.type == OBJECT_STRUCT_TYPE_NUMBER_INT)
 			{
-				stack->value.valueDouble = variant->value.valueDouble + variant2->value.valueInt;
+				env->stackHead->value.valueDouble = variant->value.valueDouble + variant2->value.valueInt;
 			}
 			else if (variant->baseObjectStruct.type == OBJECT_STRUCT_TYPE_NUMBER_INT &&variant2->baseObjectStruct.type == OBJECT_STRUCT_TYPE_NUMBER_DOUBLE)
 			{
-				stack->value.valueDouble = variant->value.valueInt + variant2->value.valueDouble;
+				env->stackHead->value.valueDouble = variant->value.valueInt + variant2->value.valueDouble;
 			}
 			else if (variant->baseObjectStruct.type == OBJECT_STRUCT_TYPE_NUMBER_INT &&variant2->baseObjectStruct.type == OBJECT_STRUCT_TYPE_NUMBER_INT)
 			{
-				stack->value.valueInt = variant->value.valueInt + variant2->value.valueInt;
-				stack->baseObjectStruct.type = OBJECT_STRUCT_TYPE_NUMBER_INT;
+				env->stackHead->value.valueInt = variant->value.valueInt + variant2->value.valueInt;
+				env->stackHead->baseObjectStruct.type = OBJECT_STRUCT_TYPE_NUMBER_INT;
 			}
 
 			 
@@ -344,25 +344,25 @@ void singleCoreLinkCPU(struct VmObject * vmObj)
 				variant = (struct NormalObjectStruct *)(variant->value.outerVariantPoint.point);
 			}
 
-			if (stack->baseObjectStruct.type == OBJECT_STRUCT_TYPE_NUMBER_DOUBLE&&variant->baseObjectStruct.type == OBJECT_STRUCT_TYPE_NUMBER_DOUBLE)
+			if (env->stackHead->baseObjectStruct.type == OBJECT_STRUCT_TYPE_NUMBER_DOUBLE&&variant->baseObjectStruct.type == OBJECT_STRUCT_TYPE_NUMBER_DOUBLE)
 			{
-				stack->value.valueDouble = variant->value.valueDouble + stack->value.valueDouble;
+				env->stackHead->value.valueDouble = variant->value.valueDouble + env->stackHead->value.valueDouble;
 			}
-			else if (stack->baseObjectStruct.type == OBJECT_STRUCT_TYPE_NUMBER_DOUBLE	&&variant->baseObjectStruct.type == OBJECT_STRUCT_TYPE_NUMBER_INT)
+			else if (env->stackHead->baseObjectStruct.type == OBJECT_STRUCT_TYPE_NUMBER_DOUBLE	&&variant->baseObjectStruct.type == OBJECT_STRUCT_TYPE_NUMBER_INT)
 			{
-				stack->value.valueDouble = variant->value.valueDouble + stack->value.valueInt;
+				env->stackHead->value.valueDouble = variant->value.valueDouble + env->stackHead->value.valueInt;
 
 			}
-			else if (stack->baseObjectStruct.type == OBJECT_STRUCT_TYPE_NUMBER_INT&&variant->baseObjectStruct.type == OBJECT_STRUCT_TYPE_NUMBER_DOUBLE)
+			else if (env->stackHead->baseObjectStruct.type == OBJECT_STRUCT_TYPE_NUMBER_INT&&variant->baseObjectStruct.type == OBJECT_STRUCT_TYPE_NUMBER_DOUBLE)
 			{
-				stack->value.valueDouble = variant->value.valueInt + stack->value.valueDouble;
-				stack->baseObjectStruct.type = OBJECT_STRUCT_TYPE_NUMBER_DOUBLE;
+				env->stackHead->value.valueDouble = variant->value.valueInt + env->stackHead->value.valueDouble;
+				env->stackHead->baseObjectStruct.type = OBJECT_STRUCT_TYPE_NUMBER_DOUBLE;
 
 			}
-			else if (stack->baseObjectStruct.type == OBJECT_STRUCT_TYPE_NUMBER_INT&&variant->baseObjectStruct.type == OBJECT_STRUCT_TYPE_NUMBER_INT)
+			else if (env->stackHead->baseObjectStruct.type == OBJECT_STRUCT_TYPE_NUMBER_INT&&variant->baseObjectStruct.type == OBJECT_STRUCT_TYPE_NUMBER_INT)
 			{
-				stack->value.valueInt = variant->value.valueInt + stack->value.valueInt;
-				stack->baseObjectStruct.type = OBJECT_STRUCT_TYPE_NUMBER_INT;
+				env->stackHead->value.valueInt = variant->value.valueInt + env->stackHead->value.valueInt;
+				env->stackHead->baseObjectStruct.type = OBJECT_STRUCT_TYPE_NUMBER_INT;
 
 			}
 			break;
@@ -374,55 +374,60 @@ void singleCoreLinkCPU(struct VmObject * vmObj)
 		case OPER_CALL_LOCAL_PREPARE:
 			variant = env->variantArray + (node->operData.operData2IntInt.l);
  
-			newEnv= constructEnv(variant,   env,env, &stack, node);
+			newEnv= constructEnv(variant,   env,env, &env->stackHead, node);
 		 
 			break;
 		case OPER_CALL_OUTER_PREPARE:
 			variant = env->variantArray + (node->operData.operData2IntInt.l);
  			
-			newEnv = constructEnv(variant->value.outerVariantPoint.point, variant->value.funcEnv.env,env, &stack, node);
+			newEnv = constructEnv(variant->value.outerVariantPoint.point, variant->value.funcEnv.env,env, &env->stackHead, node);
  
 
 			break;
 
 		case OPER_CALL_JUMP:
 			//env = env->next;//压入当前执行环境栈
-			stack = env->stack;
+			//stack = env->stack;
 			//node = env->bootNode;
 			*nextNode=env->bootNode;
 			//return node;
 
 			break;
-		case OPER_FUNC_RETURN:
+		case OPER_FUNC_RETURN_PREPARE:
 			//node = env->returnNode;
-			*nextNode = env->returnNode;
 
-			stack = env->returnStack;
-			env = env->prev;
+			env->stackHead = env->returnStack;
 			//env->next = NULL;
 			//return node;
 
 			break;
+		case OPER_FUNC_RETURN :
+			*nextNode = env->returnNode;
+			env = env->prev;
+			env->stackHead = env->returnStack;
+
+			break;
+
 		case OPER_LOAD_LOCAL_VAR_STACK:
 			variant = env->variantArray + (node->operData.operData2IntInt.l);
 			 
-			memcpy(stack, variant, sizeof(struct NormalObjectStruct));
+			memcpy(env->stackHead, variant, sizeof(struct NormalObjectStruct));
 				 
 			break;
 		case OPER_LOAD_OUTER_VAR_STACK:
 			variant = env->variantArray + (node->operData.operData2IntInt.l);
 			variant = (struct NormalObjectStruct *)(variant->value.outerVariantPoint.point);
-			memcpy(stack, variant, sizeof(struct NormalObjectStruct));
+			memcpy(env->stackHead, variant, sizeof(struct NormalObjectStruct));
 			break;
 		case OPER_LOAD_STACK_LOCAL_VAR:
 			variant = env->variantArray + (node->operData.operData2IntInt.l);
-			memcpy(variant, stack,  sizeof(struct NormalObjectStruct));
+			memcpy(variant, env->stackHead,  sizeof(struct NormalObjectStruct));
 
 			break;
 		case OPER_LOAD_STACK_OUTER_VAR:
 			variant = env->variantArray + (node->operData.operData2IntInt.l);
 			variant = (struct NormalObjectStruct *)(variant->value.outerVariantPoint.point);
-			memcpy(variant, stack, sizeof(struct NormalObjectStruct));
+			memcpy(variant, env->stackHead, sizeof(struct NormalObjectStruct));
 			break;
 		case OPER_LOAD_LOCAL_VAR_LOCAL_VAR:
 			variant = env->variantArray + (node->operData.operData2IntInt.l);
@@ -462,10 +467,10 @@ void singleCoreLinkCPU(struct VmObject * vmObj)
 
 
 		case OPER_STACK_PUSH:
-			stack++;
+			env->stackHead++;
 			break;
 		case OPER_STACK_POP:
-			stack--;
+			env->stackHead--;
 			break;
 			
 		case OPER_GET_LOCAL_OBJECT_POINT_2_STACK:
@@ -473,7 +478,7 @@ void singleCoreLinkCPU(struct VmObject * vmObj)
 
 			stringProperty = (  struct StringProperty *)(node->operData.operData2IntInt.r);
 			variant = searchObjField2Stack(variant->value.objPoint, stringProperty );
-			memcpy(stack, variant, sizeof(struct NormalObjectStruct));
+			memcpy(env->stackHead, variant, sizeof(struct NormalObjectStruct));
 
 			break;
 		case OPER_GET_OUTER_OBJECT_POINT_2_STACK:
@@ -483,7 +488,7 @@ void singleCoreLinkCPU(struct VmObject * vmObj)
 			stringProperty = (struct StringProperty *)(node->operData.operData2IntInt.r);
 
 			variant=searchObjField2Stack(variant->value.objPoint, stringProperty);
-			memcpy(stack, variant, sizeof(struct NormalObjectStruct));
+			memcpy(env->stackHead, variant, sizeof(struct NormalObjectStruct));
 			break;
 		case OPER_GET_OBJECT_POINT_POINT_2_STACK:
 			//variant = node->operData.operData2IntInt.l;
@@ -491,7 +496,7 @@ void singleCoreLinkCPU(struct VmObject * vmObj)
 			stringProperty = (struct StringProperty *)(node->operData.operData2IntInt.r);
 
 			variant = searchObjField2Stack((struct  ObjectStruct *)(node->operData.operData2IntInt.l), stringProperty);
-			memcpy(stack, variant, sizeof(struct NormalObjectStruct));
+			memcpy(env->stackHead, variant, sizeof(struct NormalObjectStruct));
 
 			break;
  
@@ -517,7 +522,7 @@ void singleCoreLinkCPU(struct VmObject * vmObj)
 		case OPER_IF_VAR_JUMP:
  
 		 
-			if (stack->value.valueInt == 0)
+			if (env->stackHead->value.valueInt == 0)
 
 			{
 				*nextNode = (struct   ComputeNode *)(node->operData.operData2IntInt.r);
@@ -556,37 +561,8 @@ void singleCoreLinkCPU(struct VmObject * vmObj)
 		case OPER_JUMP:
 			*nextNode = (struct   ComputeNode *)(node->operData.operData2IntInt.l);
 			break;
-		case OPER_NEW_VAR_LOCAL_FUNC :
+		case OPER_NEW_FUNC :
 		 
-
-			variant = env->variantArray + (node->operData.operData2IntInt.l);
-			if (variant->baseObjectStruct.type == OBJECT_STRUCT_TYPE_OUTER_POINT)
-			{
-				variant = (struct NormalObjectStruct *)(variant->value.outerVariantPoint.point);
-			}
-
-			variant2 = env->variantArray + (node->operData.operData2IntInt.r);
-		 
-			func = ((struct FunctionStruct*) variant2) ;
-
-			if()
-
-			//准备函数环境
-			variant->value.objPoint = malloc(sizeof(struct ObjectStruct));
-			memcpy(variant->value.objPoint, &(func->prototype->objectStruct), sizeof(struct ObjectStruct));
-		 
-			newEnv = constructEnv(variant2, env, &stack, node);
- 
-			newEnv->scope = env;
-			
-			env->next = newEnv;
-			newEnv->prev = env;
-			*currentEnv = newEnv;
-
-
-
-			break;
-		case OPER_NEW_VAR_OUTER_FUNC:
 
 			variant = env->variantArray + (node->operData.operData2IntInt.l);
 			if (variant->baseObjectStruct.type == OBJECT_STRUCT_TYPE_POINT)
@@ -595,21 +571,59 @@ void singleCoreLinkCPU(struct VmObject * vmObj)
 			}
 
 			variant2 = env->variantArray + (node->operData.operData2IntInt.r);
-			variant2 = (struct NormalObjectStruct *)(variant2->value.outerVariantPoint.point);
 			
-			func = ((struct FunctionStruct*) variant2);
+			memcpy(env->stackHead, variant2, sizeof(struct NormalObjectStruct));
+			
+			if (variant2->baseObjectStruct.type == OBJECT_STRUCT_TYPE_NUMBER_INT
+				|| variant2->baseObjectStruct.type == OBJECT_STRUCT_TYPE_NUMBER_DOUBLE
+				|| variant2->baseObjectStruct.type == OBJECT_STRUCT_TYPE_BOOLEAN
+				|| variant2->baseObjectStruct.type == OBJECT_STRUCT_TYPE_STRING)
+			{
+				
+			}
+			 
+			else if (variant2->baseObjectStruct.type == OBJECT_STRUCT_TYPE_OBJECT)
+			{
+				env->stackHead->value.objPoint = malloc(sizeof(struct ObjectStruct));
+				memcpy(variant->value.objPoint, &(objectTemplate), sizeof(struct ObjectStruct));
 
+			}
+			else if (variant2->baseObjectStruct.type == OBJECT_STRUCT_TYPE_FUNCTION)
+			{
+				env->stackHead->value.objPoint = malloc(sizeof(struct FunctionStruct));
+				memcpy(variant->value.objPoint, &(functionTemplate), sizeof(struct ObjectStruct));
+
+			}
+			else if (variant2->baseObjectStruct.type == OBJECT_STRUCT_TYPE_ARRAY)
+			{
+				env->stackHead->value.objPoint = malloc(sizeof(struct ArrayStruct));
+				memcpy(variant->value.objPoint, &(arrayTemplate), sizeof(struct ObjectStruct));
+			}
+			
 			//准备函数环境
-			variant->value.objPoint = malloc(sizeof(struct ObjectStruct));
-			memcpy(variant->value.objPoint, &(func->prototype->objectStruct), sizeof(struct ObjectStruct));
-			newEnv = constructEnv(variant2, env, &stack, node);
+		 
+			env->stackHead++;
+			newEnv = constructEnv(variant, env, env, env->stackHead, node);
  
-			newEnv->scope = variant->value.funcEnv.env;
+			memcpy(newEnv->stack, env->stackHead, sizeof(struct NormalObjectStruct)); //复制this指针
 
-			env->next = newEnv;
-			newEnv->prev = env;
-			*currentEnv = newEnv;
 
+
+			break;
+		case OPER_NEW_FUNC_BACK:
+			newEnv->stackHead--;
+			 //判断返回的值是否引用类型
+			if (env->stackHead->baseObjectStruct.type == OBJECT_STRUCT_TYPE_NUMBER_INT
+				|| env->stackHead->baseObjectStruct.type == OBJECT_STRUCT_TYPE_NUMBER_DOUBLE
+				|| env->stackHead->baseObjectStruct.type == OBJECT_STRUCT_TYPE_BOOLEAN
+				|| env->stackHead->baseObjectStruct.type == OBJECT_STRUCT_TYPE_STRING)
+			{
+			}
+			else
+			{
+				memcpy(newEnv->stackHead , env->stackHead+1, sizeof(struct NormalObjectStruct)); //引用类型，复制返回值 
+
+			}
 			break;
 		case OPER_PROGRAM_END:
 			//node = NULL;
@@ -670,7 +684,7 @@ inline   struct BaseObjectStruct *  searchObjField2Stack(struct  ObjectStruct * 
 }
  
 
-inline struct ExecEnv * constructEnv(struct NormalObjectStruct * variantFunc,  struct ExecEnv *envScop , struct ExecEnv * currentEnv, struct NormalObjectStruct ** stack, struct ComputeNode * returnNode)
+inline struct ExecEnv * constructEnv(struct NormalObjectStruct * variantFunc,  struct ExecEnv *envScop , struct ExecEnv * currentEnv, struct NormalObjectStruct *  stack, struct ComputeNode * returnNode)
 {
 	struct FunctionStruct * func =  variantFunc->value.funcEnv.func;
 
@@ -691,9 +705,10 @@ inline struct ExecEnv * constructEnv(struct NormalObjectStruct * variantFunc,  s
 		newEnv = malloc(sizeof(struct ExecEnv));
 
 		memcpy(newEnv, func->envTemplate, sizeof(struct ExecEnv));
-		newEnv->variantArray = malloc(newEnv->variantArrayLen);
-		memcpy(newEnv->variantArray, func->envTemplate->variantArray, func->envTemplate->variantArrayLen);
-
+		newEnv->variantArray = malloc(newEnv->variantArrayLen+ newEnv->stackSize);
+		memcpy(newEnv->variantArray, func->envTemplate->variantArray, func->envTemplate->variantArrayLen + newEnv->stackSize);
+		newEnv->stack = newEnv->variantArray + newEnv->variantArrayLen;
+		newEnv->stackHead = newEnv->stack;
 
 		//初始化本地变量
 		/*variant = newEnv->localVariant;
@@ -727,17 +742,18 @@ inline struct ExecEnv * constructEnv(struct NormalObjectStruct * variantFunc,  s
 
 			}		 
 		}
+		
 	}
  
-	newEnv->returnStack = *stack;
-	*stack = newEnv->variantArray;
-
+	newEnv->returnStack = stack;
+ 
 	newEnv->scope = envScop;
 	newEnv->prev = currentEnv;
 	currentEnv->next = newEnv;
 
 
 	newEnv->returnNode = returnNode;
-	//newEnv->thisPoint = thisPoint;
+
+
 	return newEnv;
 }

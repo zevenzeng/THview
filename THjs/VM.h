@@ -30,6 +30,8 @@ enum OPER_CODE{
  OPER_STACK_POP			, //递增堆栈
 
  OPER_CALL_JUMP, 	//进入函数
+ OPER_FUNC_RETURN_PREPARE, //准备从函数返回
+
  OPER_FUNC_RETURN     , //从函数返回
  OPER_LOAD_LOCAL_VAR_STACK, //加载本地变量到堆栈
  OPER_LOAD_OUTER_VAR_STACK , 	//加载外部变量到堆栈
@@ -52,9 +54,10 @@ enum OPER_CODE{
 
  OPER_JUMP,
 
- OPER_NEW_VAR_LOCAL_FUNC,
- OPER_NEW_VAR_OUTER_FUNC,
+ OPER_NEW_FUNC,//准备进入构造函数
+ OPER_NEW_FUNC_BACK,  //从构造函数返回
 
+ 
 
 
 };

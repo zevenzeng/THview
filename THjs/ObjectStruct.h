@@ -117,13 +117,7 @@ struct NormalObjectStruct
 	} value;
 
 };
-struct Local
-{
-	struct BaseObjectStruct baseObjectStruct;  //继承ObjStruct
-	struct FunctionStruct * func;
-	struct ExecEnv * env;
-
-};
+ 
 //函数和运行环境的绑定
 struct FunctionEnvBind
 {
@@ -159,6 +153,7 @@ struct  FunctionStruct
 struct ExecEnv
 {
 	struct NormalObjectStruct * variantArray;//变量数组  this指针(默认指向全局对象，可以通过)、param,localVariant ,localFunc, globalProperty，outerVariant
+											//全局环境变量，把Number Array函数都作为localVariant加进来						
 	unsigned int variantArrayLen;
 	unsigned int localLen;
 
@@ -181,7 +176,9 @@ struct ExecEnv
 
 	struct ExecEnv * prev;// 调用栈上一个环境
 	struct ExecEnv * next;// 调用栈下一个环境
-	struct NormalObjectStruct  stack[2];  //执行结果栈
+	struct NormalObjectStruct * stack;  //执行结果栈
+	struct NormalObjectStruct * stackSize;  //执行结果栈长度
+	struct NormalObjectStruct * stackHead;//堆栈指针
 	struct NormalObjectStruct * returnStack;  //返回结果栈
 	struct ComputeNode * bootNode;
 	struct ComputeNode *  returnNode; //返回树节点
@@ -202,7 +199,10 @@ struct GlobalEnvObj
 struct NormalObjectStruct undefinedObject;
 struct NormalObjectStruct nullObject;
 struct NormalObjectStruct normalValueFunction;
-struct ObjectStruct Object;
+struct ObjectStruct objectTemplate;
+struct FunctionStruct functionTemplate;
+struct ArrayStruct arrayTemplate;
+
 
 struct NormalObjectStruct * newStringObjectStruct();
 struct BaseObjectStruct * addProperty(struct ObjectStruct *obj, struct StringProperty *	stringProperty);

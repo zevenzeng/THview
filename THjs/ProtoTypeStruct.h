@@ -11,6 +11,7 @@ struct ProtoTypeStruct
  	unsigned int protoType;
 
 	struct FunctionStruct * constructor;
+ 
 };
 
 struct ProtoTypeStruct stringProtoType;
